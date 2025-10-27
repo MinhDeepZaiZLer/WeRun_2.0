@@ -6,6 +6,9 @@ class LoginUsecase {
   LoginUsecase(this.authRepository);
 
   Future<void> call({required String password, required String email}) {
-    return authRepository.loginWithEmailPassword(email: email, password: password);
+    return authRepository.loginWithEmailPassword(
+      email: email,
+      password: password,
+    );
   }
 }
