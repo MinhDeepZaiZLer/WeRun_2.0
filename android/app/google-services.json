@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "433513986893",
+    "project_id": "dacs4-werun2-0-flutter",
+    "storage_bucket": "dacs4-werun2-0-flutter.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:433513986893:android:d1ea94d68159b56ad19504",
+        "android_client_info": {
+          "package_name": "com.example.dacs4_werun_2_0"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArdcrYF4mJSDUS3OGH6k7EWrFyackZnlw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
