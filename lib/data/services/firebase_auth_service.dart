@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart' as auth;
+import 'package:injectable/injectable.dart';
 
+@lazySingleton // chỉ tạo class này 1 lần duy nhất khi nó được gọi lần đầu (ý nghĩa)
 class FirebaseAuthService{
   final auth.FirebaseAuth _firebaseAuth = auth.FirebaseAuth.instance;
 

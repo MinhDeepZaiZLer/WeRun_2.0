@@ -1,6 +1,4 @@
-// part of 'auth_bloc.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+part of 'auth_bloc.dart';
 
 @immutable
 abstract class AuthEvent {

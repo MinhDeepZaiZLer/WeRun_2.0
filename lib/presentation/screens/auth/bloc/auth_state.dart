@@ -1,6 +1,4 @@
-// part of "auth_bloc.dart";
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+part of "auth_bloc.dart";
 
 @immutable
 abstract class AuthState {
@@ -28,7 +26,7 @@ class Authenticated extends AuthState {
 
 // trạng thái chưa đăng nhập
 
-class UnAuthenticated extends AuthState{
+class Unauthenticated extends AuthState{
 
 }
 

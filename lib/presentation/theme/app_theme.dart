@@ -13,7 +13,7 @@ class AppTheme {
     colorScheme: ColorScheme.light(
       primary: AppColors.lightPrimary,
       secondary: AppColors.lightSecondary,
-      surface: AppColors.lightSurface,
+      surface: Colors.white,
       onPrimary: Colors.white, // Màu chữ/icon trên nền Primary
       onSecondary: Colors.black, // Màu chữ/icon trên nền Secondary
       onSurface: AppColors.lightTextPrimary, // Màu chữ/icon trên nền Surface
