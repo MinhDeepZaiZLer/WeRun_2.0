@@ -19,7 +19,9 @@ import '../../domain/usecases/get_current_user_usecase.dart' as _i771;
 import '../../domain/usecases/login_usecase.dart' as _i253;
 import '../../domain/usecases/logout_usecase.dart' as _i981;
 import '../../domain/usecases/register_usecase.dart' as _i35;
+import '../../domain/usecases/save_run_usecase.dart' as _i725;
 import '../../presentation/screens/auth/bloc/auth_bloc.dart' as _i253;
+import '../../presentation/screens/home/home_bloc.dart' as _i812;
 
 // initializes the registration of main-scope dependencies inside of GetIt
 _i174.GetIt init(
@@ -28,8 +30,12 @@ _i174.GetIt init(
   _i526.EnvironmentFilter? environmentFilter,
 }) {
   final gh = _i526.GetItHelper(getIt, environment, environmentFilter);
+  gh.factory<_i812.HomeBloc>(() => _i812.HomeBloc());
   gh.lazySingleton<_i734.FirebaseAuthService>(
     () => _i734.FirebaseAuthService(),
+  );
+  gh.lazySingleton<_i725.SaveRunUsecase>(
+    () => _i725.SaveRunUsecase(gh<InvalidType>()),
   );
   gh.lazySingleton<_i1073.AuthRepository>(
     () => _i895.AuthRepositoryImpl(gh<_i734.FirebaseAuthService>()),

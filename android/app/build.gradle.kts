@@ -38,6 +38,9 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+    buildTypes.each {
+        it.resValue "string", "mapbox_access_token", (project.properties['MAPBOX_PUBLIC_TOKEN'] ?: "")
+    }
 }
 
 flutter {
