@@ -1,9 +1,11 @@
 // lib/presentation/screens/home/home_screen.dart
+import 'package:dacs4_werun_2_0/presentation/components/navigation_drawer_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:math' as math;
 import 'package:dacs4_werun_2_0/presentation/screens/auth/bloc/auth_bloc.dart';
 import 'home_bloc.dart';
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -25,11 +27,29 @@ class HomeScreenContent extends StatelessWidget {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: Colors.white,
-          appBar: HomeTopBar(
-            userName: state.user?.fullName ?? 'WeRun',
-            onMenuClick: () {
-              Scaffold.of(context).openDrawer();
-            },
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            leading: Builder(
+              builder: (BuildContext context) {
+                return IconButton(
+                  icon: const Icon(Icons.menu, color: Colors.black),
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                  },
+                );
+              },
+            ),
+            title: Text(
+              state.user?.fullName.isEmpty ?? true ? 'WeRun' : state.user!.fullName,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            actions: const [
+              SizedBox(width: 68),
+            ],
           ),
           drawer: const NavigationDrawerContent(),
           body: Stack(
@@ -614,54 +634,6 @@ class StartRunButton extends StatelessWidget {
             fontSize: 13,
           ),
         ),
-      ),
-    );
-  }
-}
-
-// Navigation Drawer Content (placeholder)
-class NavigationDrawerContent extends StatelessWidget {
-  const NavigationDrawerContent({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(color: Color(0xFFC4FF53)),
-            child: Text(
-              'WeRun',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('Home'),
-            onTap: () => Navigator.pop(context),
-          ),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Settings'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/settings');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.logout),
-            title: const Text('Logout'),
-            onTap: () {
-              // TODO: Implement logout
-              Navigator.pop(context);
-            },
-          ),
-        ],
       ),
     );
   }

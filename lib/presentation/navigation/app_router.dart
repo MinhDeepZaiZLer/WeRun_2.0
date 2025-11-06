@@ -14,36 +14,51 @@ class GoRouterRefreshStream extends ChangeNotifier {
     stream.asBroadcastStream().listen((_) => notifyListeners());
   }
 }
-// AppRouter.dart
 class AppRouter {
-  final AuthBloc authBloc;
+  
+  // KHÔNG CẦN AuthBloc ở đây nữa
+  
+  static final GoRouter router = GoRouter(
+    initialLocation: '/login', 
+    
+    // 1. Lắng nghe AuthBloc từ Context
+    refreshListenable: GoRouterRefreshStream(getIt<AuthBloc>().stream),
+    
+    // 2. Logic redirect giữ nguyên, nhưng lấy bloc từ context
+    redirect: (BuildContext context, GoRouterState state) {
+      final authState = context.read<AuthBloc>().state; // <-- Lấy từ Context
+      
+      final bool onAuthRoute = state.matchedLocation == '/login' ||
+                               state.matchedLocation == '/register';
 
-  AppRouter(this.authBloc);
+      if (authState is AuthInitial) return null; 
+      
+      if (authState is Authenticated) {
+        return onAuthRoute ? '/home' : null;
+      }
 
-  late final GoRouter router = GoRouter(
-    initialLocation: '/login',
-    refreshListenable: GoRouterRefreshStream(authBloc.stream),
-    redirect: (context, state) {
-      final authState = authBloc.state;
-      final onAuthRoute = state.matchedLocation == '/login' || state.matchedLocation == '/register';
-
-      if (authState is AuthInitial) return null;
-      if (authState is Authenticated) return onAuthRoute ? '/home' : null;
-      if (authState is Unauthenticated) return onAuthRoute ? null : '/login';
+      if (authState is Unauthenticated) {
+        return onAuthRoute ? null : '/login';
+      }
+      
       return null;
     },
+    
     routes: [
-      ShellRoute(
-        builder: (context, state, child) {
-          return BlocProvider.value(value: authBloc, child: child);
-        },
-        routes: [
-          GoRoute(path: '/login', builder: (context, state) => LoginScreen(onBackClicked: () {}, onLoginSuccess: () {})),
-          GoRoute(path: '/register', builder: (context, state) => SignUpScreen(onBackClicked: () {}, onSignUpSuccess: () {})),
-        ],
+      // 3. XÓA ShellRoute, vì Bloc đã được cung cấp ở main.dart
+      GoRoute(
+        path: '/login',
+        builder: (context, state) => const LoginScreen(),
       ),
-      GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
+      GoRoute(
+        path: '/register',
+        builder: (context, state) => const SignUpScreen(),
+      ),
+      GoRoute(
+        path: '/home',
+        builder: (context, state) => const HomeScreen(), 
+      ),
+      // TODO: Thêm các route '/profile', '/run_history', v.v.
     ],
   );
 }
-
