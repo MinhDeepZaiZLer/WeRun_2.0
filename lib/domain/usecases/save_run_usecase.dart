@@ -9,5 +9,4 @@ class SaveRunUsecase {
   Future<void> call(RunActivity run) {
     return _runRepository.saveRun(run);
   }
-
 }

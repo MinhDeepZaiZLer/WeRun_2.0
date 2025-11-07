@@ -4,7 +4,7 @@ class RunActivity {
   final String id;
   final String userId;
 
-  final List<LocationPoint> router; // luu lai toa do gps -> ve ra duong chay
+  final List<LocationPoint> route; // luu lai toa do gps -> ve ra duong chay
   final int durationInSeconds; //tong thoi gian chay tinh bang giay
   final double distanceInMeters; // tong quang duong chay duoc tinh bang met
   final DateTime timestamp; // thoi diem bat dau chay
@@ -13,7 +13,7 @@ class RunActivity {
   RunActivity({
     required this.id,
     required this.userId,
-    required this.router,
+    required this.route,
     required this.durationInSeconds,
     required this.distanceInMeters,
     required this.timestamp,
