@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart'; // <-- 1. THÊM import GoRouter
+import 'package:go_router/go_router.dart'; // 1. Đã import GoRouter
 
-// 2. XÓA import 'package:maplibre_gl/maplibre_gl.dart'; (Không cần ở màn này)
-
-// 3. THÊM import cho Event
+// 2. Đã XÓA import maplibre_gl.dart (không cần ở màn này)
 
 // (Giả sử đường dẫn DI của bạn là đây)
 import 'package:dacs4_werun_2_0/core/di/injection.dart'; 
@@ -16,7 +14,6 @@ const Color lightGray = Color(0xFFF5F5F5);
 const Color textBlack = Color(0xFF000000);
 const Color textGray = Color(0xFF8A8A8E);
 const Color chipBackground = Color(0xFFE8F5E9);
-
 class RunScreen extends StatelessWidget {
  const RunScreen({super.key});
 
@@ -37,12 +34,8 @@ class RunView extends StatefulWidget {
 }
 
 class _RunViewState extends State<RunView> {
-  // 4. XÓA các biến/hàm liên quan đến bản đồ (vì chúng ở màn hình /map)
-  // MapboxMapController? _mapController;
-  // final String _mapboxPublicToken = "pk.YOUR_PUBLIC_KEY_HERE";
-  // bool _showSaveDialog = false;
-  // void _onMapCreated(MapboxMapController controller) { ... }
-
+  // 4. Đã XÓA các biến/hàm liên quan đến bản đồ
+  
  @override
  Widget build(BuildContext context) {
   return Scaffold(
@@ -56,6 +49,14 @@ class _RunViewState extends State<RunView> {
         backgroundColor: Colors.red,
        ),
       );
+     }
+          // 5. TỰ ĐỘNG THOÁT KHI LƯU/HỦY XONG
+     if (state is RunInitial || state is RunFinished) {
+            // Kiểm tra xem màn hình RunScreen có phải là màn hình trên cùng không
+            if (ModalRoute.of(context)?.isCurrent ?? false) {
+              // Chỉ pop nếu nó đang hiển thị (tránh pop 2 lần)
+              context.pop(); 
+            }
      }
     },
     builder: (context, state) {
@@ -72,8 +73,7 @@ class _RunViewState extends State<RunView> {
          const SizedBox(height: 24),
          _buildMusicPlayer(),
          const Spacer(),
-                // 5. SỬA: Truyền context vào
-         _buildActionButtons(context, state), 
+         _buildActionButtons(context, state),
         ],
        ),
       ),
