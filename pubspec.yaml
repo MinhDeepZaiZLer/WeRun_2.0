@@ -43,6 +43,7 @@ dependencies:
   equatable: ^2.0.5
   location: ^8.0.1
   maplibre_gl: ^0.24.1
+  cloud_firestore: ^6.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,12 +1,12 @@
 // lib/presentation/screens/run/map_screen.dart
-// import 'dart:async'; // <- Lỗi 5: Đã xóa (không dùng)
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:maplibre_gl/maplibre_gl.dart'; // <-- Đã dùng gói mới
+import 'package:maplibre_gl/maplibre_gl.dart'; // <-- Dùng MapLibre
 
 import 'bloc/run_bloc.dart';
-// Import các màu (đã xóa textGray không dùng)
+
+// Import các màu từ RunScreen
 import 'run_screen.dart' show lightGreen, textBlack, chipBackground; 
 
 class MapScreen extends StatelessWidget {
@@ -14,7 +14,9 @@ class MapScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // "Dùng ké" BLoC từ RunScreen
+    // RẤT QUAN TRỌNG:
+    // Chúng ta KHÔNG tạo BLoC mới,
+    // mà "tìm" BLoC đã được tạo bởi RunScreen.
     return BlocProvider.value(
       value: BlocProvider.of<RunBloc>(context),
       child: const MapView(),
@@ -30,11 +32,9 @@ class MapView extends StatefulWidget {
 }
 
 class _MapViewState extends State<MapView> {
-  // Lỗi 8: Sửa Case Sensitivity
-  MapLibreMapController? _mapController; 
+  MapLibreMapController? _mapController;
   bool _hasInitialZoom = false;
 
-  // Lỗi 8: Sửa Case Sensitivity
   void _onMapCreated(MapLibreMapController controller) {
     _mapController = controller;
   }
@@ -59,12 +59,13 @@ class _MapViewState extends State<MapView> {
       body: BlocListener<RunBloc, RunState>(
         listener: (context, state) {
           if (state is RunInProgress && state.route.isNotEmpty) {
+            // 1. Cập nhật đường vẽ
             final routeLatLng = state.route
                 .map((p) => LatLng(p.latitude, p.longitude))
                 .toList();
-            _updateRoute(routeLatLng); // Vẽ đường
+            _updateRoute(routeLatLng);
 
-            // Di chuyển camera
+            // 2. Di chuyển camera
             final latestPoint = routeLatLng.last;
             if (!_hasInitialZoom) {
               _mapController?.animateCamera(
@@ -81,25 +82,19 @@ class _MapViewState extends State<MapView> {
         child: Stack(
           children: [
             // === BẢN ĐỒ MAPLIBRE ===
-            // Lỗi 9: Sửa Case Sensitivity
             MapLibreMap( 
-              // Lỗi 1: Xóa 'accessToken' (không cần cho style miễn phí)
-              
-              // Lỗi 2 & 10: Sửa tên Style và Case
-              styleString: "https://demotiles.maplibre.org/style.json",
-
+              // Dùng style Outdoor (giống Kotlin)
+              styleString: MapLibreStyles.demo, 
               
               onMapCreated: _onMapCreated,
               initialCameraPosition: const CameraPosition(
-                target: LatLng(10.762622, 106.660172), 
+                target: LatLng(10.762622, 106.660172), // Tọa độ tạm
                 zoom: 15.0,
               ),
               myLocationEnabled: true,
-              
-              // Lỗi 3: Sửa tên Enum
-              myLocationTrackingMode: MyLocationTrackingMode.TrackingGPS, 
-              
+              myLocationTrackingMode: MyLocationTrackingMode.trackingGps, 
               trackCameraPosition: true,
+              // Thêm source và layer (giống Kotlin)
               onStyleLoadedCallback: () {
                 _mapController?.addSource(
                   "route-source",
@@ -112,7 +107,7 @@ class _MapViewState extends State<MapView> {
                   "route-layer",
                   "route-source",
                   const LineLayerProperties(
-                    lineColor: "#FF4081",
+                    lineColor: "#FF4081", // Màu hồng
                     lineWidth: 5.0,
                     lineOpacity: 0.8,
                   ),
@@ -139,7 +134,7 @@ class _MapViewState extends State<MapView> {
     final state = runBloc.state;
 
     bool isRunning = false;
-    bool hasRoute = false; // Lỗi 7: Sửa lỗi (biến này sẽ được dùng)
+    bool hasRoute = false;
 
     if (state is RunInProgress) {
       isRunning = !state.isPaused;
@@ -148,7 +143,6 @@ class _MapViewState extends State<MapView> {
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      // Lỗi 4: Sửa 'verticalAlignment' -> 'crossAxisAlignment'
       crossAxisAlignment: CrossAxisAlignment.center, 
       children: [
         // Nút Quay về (Giống Kotlin)
@@ -188,7 +182,7 @@ class _MapViewState extends State<MapView> {
           ),
         ),
 
-        // Nút Reset (Thêm từ file Kotlin, sử dụng 'hasRoute')
+        // Nút Reset (Thêm từ file Kotlin)
         OutlinedButton(
           onPressed: () {
             // Chỉ reset khi đang tạm dừng và có đường chạy

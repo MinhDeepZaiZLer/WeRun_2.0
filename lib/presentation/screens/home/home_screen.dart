@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:math' as math;
 import 'package:dacs4_werun_2_0/presentation/screens/auth/bloc/auth_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'home_bloc.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -138,8 +139,11 @@ class HomeScreenContent extends StatelessWidget {
                     padding: const EdgeInsets.all(16),
                     child: RunControls(
                       onStartClick: () {
+
                         context.read<HomeBloc>().add(StartRun());
-                        Navigator.pushNamed(context, '/run');
+
+                       context.go('/run');
+
                       },
                       onSettingsClick: () {
                         context.read<HomeBloc>().add(OpenSettings());

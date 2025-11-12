@@ -1,7 +1,4 @@
-plugins {
-    // Không cần gì ở đây, 
-    // tất cả plugin đã được quản lý trong settings.gradle.kts
-}
+// android/build.gradle.kts (Project-level build.gradle.kts - corrected Kotlin DSL syntax)
 
 allprojects {
     repositories {
@@ -12,10 +9,10 @@ allprojects {
 
 rootProject.buildDir = file("../build")
 subprojects {
-    project.buildDir = File(rootProject.buildDir, project.name)
+    buildDir = file("${rootProject.buildDir}/${name}")
 }
 subprojects {
-    project.evaluationDependsOn(":app")
+    evaluationDependsOn(":app")
 }
 
 tasks.register("clean", Delete::class) {
