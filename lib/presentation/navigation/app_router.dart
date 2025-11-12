@@ -1,3 +1,4 @@
+import 'package:dacs4_werun_2_0/presentation/screens/run/bloc/run_bloc.dart';
 import 'package:dacs4_werun_2_0/presentation/screens/run/map_screen.dart';
 import 'package:dacs4_werun_2_0/presentation/screens/run/run_screen.dart';
 import 'package:flutter/material.dart';
@@ -60,14 +61,33 @@ class AppRouter {
         path: '/home',
         builder: (context, state) => const HomeScreen(), 
       ),
-      GoRoute(
-        path: '/run',
-        builder: (context, state) => const RunScreen(),
+      ShellRoute(
+        builder: (context, state, child) {
+          // 1. Cung cấp RunBloc cho TẤT CẢ các route con bên dưới
+          return BlocProvider(
+            create: (context) => getIt<RunBloc>(),
+            child: child, // 'child' sẽ là RunScreen hoặc MapScreen
+          );
+        },
+        routes: [
+          GoRoute(
+            path: '/run',
+            builder: (context, state) => const RunScreen(),
+          ),
+          GoRoute(
+            path: '/map',
+            builder: (context, state) => const MapScreen(),
+          ),
+        ],
       ),
-      GoRoute(
-        path: '/map',
-        builder: (context, state) => const MapScreen(),
-      ),
+      // GoRoute(
+      //   path: '/run',
+      //   builder: (context, state) => const RunScreen(),
+      // ),
+      // GoRoute(
+      //   path: '/map',
+      //   builder: (context, state) => const MapScreen(),
+      // ),
       // TODO: Thêm các route '/profile', '/run_history', v.v.
     ],
   );

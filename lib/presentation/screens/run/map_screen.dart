@@ -33,39 +33,85 @@ class MapView extends StatefulWidget {
 
 class _MapViewState extends State<MapView> {
   MapLibreMapController? _mapController;
+  
+  // 1. XÓA BIẾN _mapboxPublicToken
+  // final String _mapboxPublicToken = "pk.YOUR_PUBLIC_KEY_HERE"; 
+  
+  // 2. TẠO BIẾN CHỨA URL CỦA MAPTILER
+  // !! Dán KEY MIỄN PHÍ của bạn vào đây !!
+  final String _maptilerStyleUrl = 
+        "https://api.maptiler.com/maps/base-v4/style.json?key=J61Qnzu5FaqnGm9Z6yPo";
+        
+        
+  // (Bạn cũng có thể dùng style "streets":
+  // final String _maptilerStyleUrl = 
+  //       "https://api.maptiler.com/maps/streets-v2/style.json?key=YOUR_FREE_MAPTILER_KEY_HERE";
+
   bool _hasInitialZoom = false;
+  bool _isStyleLoaded = false;
+
 
   void _onMapCreated(MapLibreMapController controller) {
     _mapController = controller;
   }
 
   // Hàm cập nhật đường vẽ (giống file Kotlin)
-  void _updateRoute(List<LatLng> routePoints) {
-    _mapController?.setGeoJsonSource(
-      "route-source",
-      {
-        'type': 'Feature',
-        'geometry': {
-          'type': 'LineString',
-          'coordinates': routePoints.map((p) => [p.longitude, p.latitude]).toList(),
-        }
-      },
-    );
-  }
+ void _updateRoute(List<LatLng> routePoints) {
+    if (_mapController == null || !_isStyleLoaded) return; 
 
-  @override
+    Map<String, dynamic> geoJsonCollection; // Phải là Collection
+
+    if (routePoints.isEmpty) {
+      // Trường hợp 1: Rỗng -> Gửi Collection rỗng
+      geoJsonCollection = {
+        'type': 'FeatureCollection',
+        'features': []
+      };
+    } else if (routePoints.length == 1) {
+      // Trường hợp 2: 1 điểm -> Gửi Collection chứa 1 Point
+      final point = routePoints.first;
+      geoJsonCollection = {
+        'type': 'FeatureCollection',
+        'features': [ // Bọc trong 1 list
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Point', 
+              'coordinates': [point.longitude, point.latitude]
+            }
+          }
+        ]
+      };
+    } else {
+      // Trường hợp 3: 2+ điểm -> Gửi Collection chứa 1 LineString
+      geoJsonCollection = {
+        'type': 'FeatureCollection',
+        'features': [ // Bọc trong 1 list
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'LineString',
+              'coordinates': routePoints.map((p) => [p.longitude, p.latitude]).toList(),
+            }
+          }
+        ]
+      };
+    }
+    
+    // Cập nhật source
+    _mapController?.setGeoJsonSource("route-source", geoJsonCollection);
+  }
+@override
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocListener<RunBloc, RunState>(
         listener: (context, state) {
-          if (state is RunInProgress && state.route.isNotEmpty) {
-            // 1. Cập nhật đường vẽ
+          if (state is RunInProgress && state.route.isNotEmpty && _isStyleLoaded) {
             final routeLatLng = state.route
                 .map((p) => LatLng(p.latitude, p.longitude))
                 .toList();
-            _updateRoute(routeLatLng);
+            _updateRoute(routeLatLng); 
 
-            // 2. Di chuyển camera
             final latestPoint = routeLatLng.last;
             if (!_hasInitialZoom) {
               _mapController?.animateCamera(
@@ -81,41 +127,61 @@ class _MapViewState extends State<MapView> {
         },
         child: Stack(
           children: [
-            // === BẢN ĐỒ MAPLIBRE ===
             MapLibreMap( 
-              // Dùng style Outdoor (giống Kotlin)
-              styleString: MapLibreStyles.demo, 
-              
+             styleString: _maptilerStyleUrl,
+             
               onMapCreated: _onMapCreated,
               initialCameraPosition: const CameraPosition(
-                target: LatLng(10.762622, 106.660172), // Tọa độ tạm
+                target: LatLng(10.762622, 106.660172), 
                 zoom: 15.0,
               ),
               myLocationEnabled: true,
               myLocationTrackingMode: MyLocationTrackingMode.trackingGps, 
               trackCameraPosition: true,
-              // Thêm source và layer (giống Kotlin)
-              onStyleLoadedCallback: () {
-                _mapController?.addSource(
+              
+              // === SỬA HÀM NÀY ===
+              onStyleLoadedCallback: () async {
+                if (_mapController == null) return;
+                
+                // 1. Tạo một FeatureCollection RỖNG
+                final Map<String, dynamic> emptyGeoJsonCollection = {
+                  'type': 'FeatureCollection',
+                  'features': []
+                };
+
+                // 2. Thêm source (an toàn)
+                await _mapController?.addSource(
                   "route-source",
-                  const GeojsonSourceProperties(data: {
-                    'type': 'Feature',
-                    'geometry': {'type': 'LineString', 'coordinates': []}
-                  }),
+                  GeojsonSourceProperties(data: emptyGeoJsonCollection), 
                 );
-                _mapController?.addLayer(
+                
+                // 3. Thêm layer
+                await _mapController?.addLayer(
                   "route-layer",
                   "route-source",
                   const LineLayerProperties(
-                    lineColor: "#FF4081", // Màu hồng
+                    lineColor: "#FF4081",
                     lineWidth: 5.0,
                     lineOpacity: 0.8,
                   ),
                 );
+                
+                // 4. Báo rằng style đã sẵn sàng
+                setState(() {
+                  _isStyleLoaded = true;
+                });
+                
+                // 5. Vẽ đường ngay nếu BLoC đã có data
+                final currentState = context.read<RunBloc>().state;
+                if (currentState is RunInProgress && currentState.route.isNotEmpty) {
+                   final routeLatLng = currentState.route
+                      .map((p) => LatLng(p.latitude, p.longitude))
+                      .toList();
+                   _updateRoute(routeLatLng);
+                }
               },
             ),
 
-            // === CÁC NÚT ĐIỀU KHIỂN ===
             Positioned(
               bottom: 30,
               left: 0,
@@ -127,8 +193,6 @@ class _MapViewState extends State<MapView> {
       ),
     );
   }
-
-  // Dịch lại UI MapActionButtons từ file Kotlin
   Widget _buildMapActionButtons(BuildContext context) {
     final runBloc = context.watch<RunBloc>();
     final state = runBloc.state;
