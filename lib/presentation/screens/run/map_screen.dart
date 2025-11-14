@@ -115,7 +115,7 @@ class _MapViewState extends State<MapView> {
           // Tự động pop khi discard hoặc finish
           if (state is RunInitial || state is RunFinished) {
             if (ModalRoute.of(context)?.isCurrent ?? false) {
-              context.pop();
+              context.go('/home');
             }
           }
           

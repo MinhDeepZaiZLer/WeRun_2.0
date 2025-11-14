@@ -12,10 +12,7 @@ class RunScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<RunBloc>(),
-      child: const RunView(),
-    );
+    return const RunView();
   }
 }
 
@@ -45,7 +42,7 @@ class RunView extends StatelessWidget {
               if (Navigator.of(context).canPop()) {
                 context.pop();
               } else {
-                context.go('/'); // Hoặc route home của bạn
+                context.go('/home'); // Hoặc route home của bạn
               }
             }
           }
@@ -108,7 +105,7 @@ class _RunActionButtons extends StatelessWidget {
       children: [
         // Map Button
         RunCircularButton(
-          onPressed: () => context.go('/map'),
+          onPressed: () => context.push('/map'),
           icon: Icons.map_outlined,
           size: 80,
           iconSize: 36,
