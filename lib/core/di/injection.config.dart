@@ -26,6 +26,7 @@ import '../../domain/usecases/logout_usecase.dart' as _i981;
 import '../../domain/usecases/register_usecase.dart' as _i35;
 import '../../domain/usecases/save_run_usecase.dart' as _i725;
 import '../../presentation/screens/auth/bloc/auth_bloc.dart' as _i253;
+import '../../presentation/screens/history/bloc/history_bloc.dart' as _i818;
 import '../../presentation/screens/home/home_bloc.dart' as _i812;
 import '../../presentation/screens/run/bloc/run_bloc.dart' as _i169;
 
@@ -78,6 +79,9 @@ _i174.GetIt init(
       gh<_i35.RegisterUsecase>(),
       gh<_i981.LogoutUsecase>(),
     ),
+  );
+  gh.factory<_i818.HistoryBloc>(
+    () => _i818.HistoryBloc(gh<_i460.GetRunHistoryUsecase>()),
   );
   return getIt;
 }

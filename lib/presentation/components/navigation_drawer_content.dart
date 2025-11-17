@@ -59,7 +59,7 @@ class NavigationDrawerContent extends StatelessWidget {
             title: const Text("Run History"),
             onTap: () {
               Navigator.pop(context);
-              context.go("/run_history");
+              context.push("/run_history");
             },
           ),
           ListTile(
