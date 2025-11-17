@@ -13,13 +13,15 @@ import '../../../../domain/entities/run_activity.dart';
 import '../../../../domain/usecases/save_run_usecase.dart';
 // Import Data
 import '../../../../data/services/gps_service.dart';
-
+import '../../../../domain/usecases/get_suggested_route_usecase.dart'; 
+import '../../../../domain/entities/suggested_route.dart'; 
 part 'run_event.dart';
 part 'run_state.dart';
 
 @injectable // <-- Đánh dấu để DI
 class RunBloc extends Bloc<RunEvent, RunState> {
   final GpsService _gpsService;
+  final GetSuggestedRouteUsecase _getSuggestedRouteUsecase;
   final SaveRunUsecase _saveRunUsecase;
   // (Chúng ta sẽ cần 1 Usecase để lấy ID của user hiện tại)
   // final GetCurrentUserIdUsecase _getCurrentUserIdUsecase;
@@ -31,12 +33,14 @@ class RunBloc extends Bloc<RunEvent, RunState> {
   RunBloc(
     this._gpsService,
     this._saveRunUsecase,
+    this._getSuggestedRouteUsecase,
   ) : super(RunInitial()) {
     on<StartRun>(_onStartRun);
     on<PauseRun>(_onPauseRun);
     on<ResumeRun>(_onResumeRun);
     on<StopRun>(_onStopRun);
     on<DiscardRun>(_onDiscardRun); // <-- 1. ĐĂNG KÝ EVENT
+    on<SuggestRouteRequested>(_onSuggestRouteRequested);
     on<_LocationChanged>(_onLocationChanged);
     on<_TimerTicked>(_onTimerTicked);
   }
@@ -185,6 +189,42 @@ class RunBloc extends Bloc<RunEvent, RunState> {
       }
     }
   }
+  Future<void> _onSuggestRouteRequested(
+  SuggestRouteRequested event, Emitter<RunState> emit) async {
+
+  // (Bạn có thể emit state Loading ở đây nếu muốn)
+
+  try {
+    debugPrint("[RunBloc] Đang lấy vị trí GPS hiện tại...");
+    // 1. Lấy vị trí GPS hiện tại
+    final locationData = await _gpsService.getCurrentLocation();
+    if (locationData?.latitude == null || locationData?.longitude == null) {
+      emit(const RunFailure("Không thể lấy vị trí GPS. Hãy thử lại."));
+      return;
+    }
+
+    debugPrint("[RunBloc] Đang gọi AI Backend (Python)...");
+
+    // 2. Gọi AI Backend
+    final SuggestedRoute suggestedRoute = await _getSuggestedRouteUsecase.call(
+      lat: locationData!.latitude!,
+      lng: locationData.longitude!,
+      distanceKm: event.distanceKm,
+    );
+
+    debugPrint("[RunBloc] AI ĐÃ TRẢ VỀ: ${suggestedRoute.routePoints.length} ĐIỂM");
+
+    // 3. TODO: Chúng ta sẽ vẽ đường này lên bản đồ
+    // Tạm thời, chúng ta sẽ bắt đầu chạy (StartRun) VÀ
+    // phát ra một state mới (ví dụ RunSuggestionSuccess) 
+    // để MapScreen vẽ đường AI này.
+
+    // (Tạm thời chỉ in ra console)
+
+  } catch (e) {
+    emit(RunFailure(e.toString()));
+  }
+}
   void _onDiscardRun(DiscardRun event, Emitter<RunState> emit) {
     // 1. Dừng Timer và GPS
     _timer?.cancel();
@@ -195,5 +235,6 @@ class RunBloc extends Bloc<RunEvent, RunState> {
     
     debugPrint("Run discarded. Returning to initial state.");
   }
+  
 }
 

@@ -23,6 +23,7 @@ import '../../domain/repositories/auth_repository.dart' as _i1073;
 import '../../domain/repositories/run_repository.dart' as _i633;
 import '../../domain/usecases/get_current_user_usecase.dart' as _i771;
 import '../../domain/usecases/get_run_history_usecase.dart' as _i460;
+import '../../domain/usecases/get_suggested_route_usecase.dart' as _i646;
 import '../../domain/usecases/login_usecase.dart' as _i253;
 import '../../domain/usecases/logout_usecase.dart' as _i981;
 import '../../domain/usecases/register_usecase.dart' as _i35;
@@ -72,8 +73,8 @@ _i174.GetIt init(
   gh.lazySingleton<_i725.SaveRunUsecase>(
     () => _i725.SaveRunUsecase(gh<_i633.RunRepository>()),
   );
-  gh.factory<_i169.RunBloc>(
-    () => _i169.RunBloc(gh<_i1059.GpsService>(), gh<_i725.SaveRunUsecase>()),
+  gh.lazySingleton<_i646.GetSuggestedRouteUsecase>(
+    () => _i646.GetSuggestedRouteUsecase(gh<_i185.AiRepository>()),
   );
   gh.factory<_i253.AuthBloc>(
     () => _i253.AuthBloc(
@@ -81,6 +82,13 @@ _i174.GetIt init(
       gh<_i253.LoginUsecase>(),
       gh<_i35.RegisterUsecase>(),
       gh<_i981.LogoutUsecase>(),
+    ),
+  );
+  gh.factory<_i169.RunBloc>(
+    () => _i169.RunBloc(
+      gh<_i1059.GpsService>(),
+      gh<_i725.SaveRunUsecase>(),
+      gh<_i646.GetSuggestedRouteUsecase>(),
     ),
   );
   gh.factory<_i818.HistoryBloc>(

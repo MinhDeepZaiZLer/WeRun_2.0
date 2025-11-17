@@ -16,16 +16,14 @@ class AiRepositoryImpl implements AiRepository {
   static const String _androidBaseUrl = "http://10.0.2.2:8000/api/v1";
   // Nếu bạn test trên iOS Simulator, dùng:
   static const String _iosBaseUrl = "http://127.0.0.1:8000/api/v1";
-  
+  static const String _liveBaseUrl = "https://werun-backend.onrender.com/api/v1";
   AiRepositoryImpl() 
     : _dio = Dio(BaseOptions(
         // Tự động chọn URL đúng
-        baseUrl: defaultTargetPlatform == TargetPlatform.android 
-                 ? _androidBaseUrl 
-                 : _iosBaseUrl,
+       baseUrl: _liveBaseUrl,
         // Tăng thời gian chờ vì AI mất thời gian tính toán
-        connectTimeout: const Duration(seconds: 30), // 30 giây
-        receiveTimeout: const Duration(seconds: 30),
+        connectTimeout: const Duration(seconds: 90), // 90 giây
+        receiveTimeout: const Duration(seconds: 90),
       ));
 
   @override

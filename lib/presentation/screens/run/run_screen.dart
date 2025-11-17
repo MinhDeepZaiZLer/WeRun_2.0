@@ -133,16 +133,28 @@ class _RunActionButtons extends StatelessWidget {
         ),
 
         // Stop Button (chỉ hiển thị khi có route)
-        data.hasRoute
-            ? RunCircularButton(
-                onPressed: () => _showStopDialog(context, runBloc),
-                icon: Icons.stop,
-                backgroundColor: Colors.grey,
-                iconColor: Colors.white,
-                size: 80,
-                iconSize: 32,
-              )
-            : const SizedBox(width: 80), // Giữ chỗ
+        if (data.hasRoute)
+          RunCircularButton(
+            onPressed: () => _showStopDialog(context, runBloc),
+            icon: Icons.stop,
+            backgroundColor: Colors.grey,
+            iconColor: Colors.white,
+            size: 80,
+            iconSize: 32,
+          )
+        // Nếu CHƯA CHẠY -> Hiển thị nút AI
+        else
+          RunCircularButton(
+            onPressed: () {
+              // GỌI EVENT MỚI
+              runBloc.add(SuggestRouteRequested(distanceKm: 5.0));
+            },
+            icon: Icons.auto_awesome, // Icon AI
+            backgroundColor: Colors.blueAccent,
+            iconColor: Colors.white,
+            size: 80,
+            iconSize: 32,
+          ), // Giữ chỗ
       ],
     );
   }
