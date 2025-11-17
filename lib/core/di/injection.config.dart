@@ -12,11 +12,13 @@
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
+import '../../data/repositories/ai_repository_impl.dart' as _i434;
 import '../../data/repositories/auth_repository_impl.dart' as _i895;
 import '../../data/repositories/run_repository_impl.dart' as _i282;
 import '../../data/services/firebase_auth_service.dart' as _i734;
 import '../../data/services/firestore_service.dart' as _i367;
 import '../../data/services/gps_service.dart' as _i1059;
+import '../../domain/repositories/ai_repository.dart' as _i185;
 import '../../domain/repositories/auth_repository.dart' as _i1073;
 import '../../domain/repositories/run_repository.dart' as _i633;
 import '../../domain/usecases/get_current_user_usecase.dart' as _i771;
@@ -48,6 +50,7 @@ _i174.GetIt init(
   gh.lazySingleton<_i367.FirestoreService>(
     () => _i367.FirestoreService(gh<_i734.FirebaseAuthService>()),
   );
+  gh.lazySingleton<_i185.AiRepository>(() => _i434.AiRepositoryImpl());
   gh.lazySingleton<_i633.RunRepository>(
     () => _i282.RunRepositoryImpl(gh<_i367.FirestoreService>()),
   );
