@@ -6,8 +6,8 @@ abstract class RunEvent {}
 class StartRun extends RunEvent {}
 class PauseRun extends RunEvent {}
 class ResumeRun extends RunEvent {}
-class StopRun extends RunEvent {} // Nút "Save"
-class DiscardRun extends RunEvent {} // <-- THÊM DÒNG NÀY
+class StopRun extends RunEvent {} 
+class DiscardRun extends RunEvent {}
 class SuggestRouteRequested extends RunEvent {
   final double distanceKm;
   SuggestRouteRequested({this.distanceKm = 5.0}); // Mặc định 5km
