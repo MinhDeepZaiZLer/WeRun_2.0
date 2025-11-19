@@ -36,7 +36,7 @@ class RunView extends StatelessWidget {
           }
           
           // Tự động thoát khi lưu/hủy xong
-          if (state is RunInitial || state is RunFinished) {
+          if ((state is RunInitial && state.suggestedRoute == null)|| state is RunFinished) {
             if (ModalRoute.of(context)?.isCurrent ?? false) {
               // Kiểm tra xem có thể pop không, nếu không thì dùng go
               if (Navigator.of(context).canPop()) {
@@ -148,6 +148,8 @@ class _RunActionButtons extends StatelessWidget {
             onPressed: () {
               // GỌI EVENT MỚI
               runBloc.add(SuggestRouteRequested(distanceKm: 5.0));
+
+              context.push("/map");
             },
             icon: Icons.auto_awesome, // Icon AI
             backgroundColor: Colors.blueAccent,
