@@ -56,6 +56,8 @@ class RunBloc extends Bloc<RunEvent, RunState> {
   // --- HÀM XỬ LÝ SỰ KIỆN ---
 
   void _onStartRun(StartRun event, Emitter<RunState> emit) {
+    final currentSuggestedRoute = 
+        (state is RunInitial) ? (state as RunInitial).suggestedRoute : null;
     // 1. Hủy mọi stream/timer cũ (nếu có)
     _gpsSubscription?.cancel();
     _timer?.cancel();
@@ -76,12 +78,13 @@ class RunBloc extends Bloc<RunEvent, RunState> {
     );
 
     // 4. Đặt trạng thái ban đầu cho lần chạy
-    emit(const RunInProgress(
+    emit(RunInProgress(
       elapsedSeconds: 0,
       distanceMeters: 0,
       currentSpeedKmh: 0,
-      route: [],
+      route: const [],
       isPaused: false,
+      suggestedRoute: currentSuggestedRoute,
     ));
   }
 
@@ -192,8 +195,6 @@ class RunBloc extends Bloc<RunEvent, RunState> {
   Future<void> _onSuggestRouteRequested(
   SuggestRouteRequested event, Emitter<RunState> emit) async {
 
-  // (Bạn có thể emit state Loading ở đây nếu muốn)
-
   try {
     debugPrint("[RunBloc] Đang lấy vị trí GPS hiện tại...");
     // 1. Lấy vị trí GPS hiện tại
@@ -211,6 +212,7 @@ class RunBloc extends Bloc<RunEvent, RunState> {
       lng: locationData.longitude!,
       distanceKm: event.distanceKm,
     );
+    emit(RunInitial(suggestedRoute: suggestedRoute));
 
     debugPrint("[RunBloc] AI ĐÃ TRẢ VỀ: ${suggestedRoute.routePoints.length} ĐIỂM");
 

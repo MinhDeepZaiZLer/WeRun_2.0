@@ -29,10 +29,10 @@ class MapView extends StatefulWidget {
 
 class _MapViewState extends State<MapView> {
   MapLibreMapController? _mapController;
-  
-  final String _maptilerStyleUrl = 
+
+  final String _maptilerStyleUrl =
       "https://api.maptiler.com/maps/base-v4/style.json?key=J61Qnzu5FaqnGm9Z6yPo";
-      
+
   bool _hasInitialZoom = false;
   bool _isStyleLoaded = false;
 
@@ -46,10 +46,7 @@ class _MapViewState extends State<MapView> {
     Map<String, dynamic> geoJsonCollection;
 
     if (routePoints.isEmpty) {
-      geoJsonCollection = {
-        'type': 'FeatureCollection',
-        'features': []
-      };
+      geoJsonCollection = {'type': 'FeatureCollection', 'features': []};
     } else if (routePoints.length == 1) {
       final point = routePoints.first;
       geoJsonCollection = {
@@ -59,10 +56,10 @@ class _MapViewState extends State<MapView> {
             'type': 'Feature',
             'geometry': {
               'type': 'Point',
-              'coordinates': [point.longitude, point.latitude]
-            }
-          }
-        ]
+              'coordinates': [point.longitude, point.latitude],
+            },
+          },
+        ],
       };
     } else {
       geoJsonCollection = {
@@ -75,13 +72,54 @@ class _MapViewState extends State<MapView> {
               'coordinates': routePoints
                   .map((p) => [p.longitude, p.latitude])
                   .toList(),
-            }
-          }
-        ]
+            },
+          },
+        ],
       };
     }
-    
+
     _mapController?.setGeoJsonSource("route-source", geoJsonCollection);
+  }
+
+  void _updateAiRoute(List<LatLng> routePoints) {
+    if (_mapController == null || !_isStyleLoaded) return;
+
+    Map<String, dynamic> geoJsonCollection;
+
+    if (routePoints.isEmpty) {
+      geoJsonCollection = {'type': 'FeatureCollection', 'features': []};
+    } else if (routePoints.length == 1) {
+      final point = routePoints.first;
+      geoJsonCollection = {
+        'type': 'FeatureCollection',
+        'features': [
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [point.longitude, point.latitude],
+            },
+          },
+        ],
+      };
+    } else {
+      geoJsonCollection = {
+        'type': 'FeatureCollection',
+        'features': [
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'LineString',
+              'coordinates': routePoints
+                  .map((p) => [p.longitude, p.latitude])
+                  .toList(),
+            },
+          },
+        ],
+      };
+    }
+
+    _mapController?.setGeoJsonSource("ai-route-source", geoJsonCollection);
   }
 
   @override
@@ -90,36 +128,63 @@ class _MapViewState extends State<MapView> {
       backgroundColor: RunColors.lightGray,
       body: BlocConsumer<RunBloc, RunState>(
         listener: (context, state) {
-          // Cập nhật route và camera khi đang chạy
-          if (state is RunInProgress && 
-              state.route.isNotEmpty && 
-              _isStyleLoaded) {
-            final routeLatLng = state.route
-                .map((p) => LatLng(p.latitude, p.longitude))
-                .toList();
-            _updateRoute(routeLatLng);
+          if (!_isStyleLoaded) return;
 
-            final latestPoint = routeLatLng.last;
-            if (!_hasInitialZoom) {
+          // ==========================
+          // 1. Hiển thị route AI (RunInitial + RunInProgress)
+          // ==========================
+          if (state is RunInitial && state.suggestedRoute != null) {
+            _updateAiRoute(state.suggestedRoute!.routePoints);
+
+            // Zoom vào điểm bắt đầu AI
+            if (state.suggestedRoute!.routePoints.isNotEmpty) {
               _mapController?.animateCamera(
-                CameraUpdate.newLatLngZoom(latestPoint, 18.0),
-              );
-              _hasInitialZoom = true;
-            } else {
-              _mapController?.animateCamera(
-                CameraUpdate.newLatLng(latestPoint),
+                CameraUpdate.newLatLngZoom(
+                  state.suggestedRoute!.routePoints.first,
+                  14.0,
+                ),
               );
             }
           }
-          
-          // Tự động pop khi discard hoặc finish
+
+          if (state is RunInProgress && state.suggestedRoute != null) {
+            _updateAiRoute(state.suggestedRoute!.routePoints);
+          }
+
+          // ==========================
+          // 2. Cập nhật route thực tế khi đang chạy (RunInProgress)
+          // ==========================
+          if (state is RunInProgress && state.route.isNotEmpty) {
+            final routeLatLng = state.route
+                .map((p) => LatLng(p.latitude, p.longitude))
+                .toList();
+
+            _updateRoute(routeLatLng);
+
+            final latest = routeLatLng.last;
+
+            if (!_hasInitialZoom) {
+              _mapController?.animateCamera(
+                CameraUpdate.newLatLngZoom(latest, 18.0),
+              );
+              _hasInitialZoom = true;
+            } else {
+              _mapController?.animateCamera(CameraUpdate.newLatLng(latest));
+            }
+          }
+
+          // ==========================
+          // 3. Tự động pop khi finish / discard
+          // ==========================
           if (state is RunInitial || state is RunFinished) {
             if (ModalRoute.of(context)?.isCurrent ?? false) {
               context.go('/home');
             }
           }
-          
-          // Hiển thị lỗi
+
+          // ==========================
+          // 4. Hiển thị lỗi (RunFailure)
+          // ==========================
           if (state is RunFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -129,14 +194,15 @@ class _MapViewState extends State<MapView> {
             );
           }
         },
+
         builder: (context, state) {
           final data = RunHelpers.getRunData(state);
-          
+
           return Stack(
             children: [
               // Map
               _buildMap(context),
-              
+
               // Top overlay với stats
               Positioned(
                 top: 0,
@@ -165,7 +231,7 @@ class _MapViewState extends State<MapView> {
                   ),
                 ),
               ),
-              
+
               // Bottom action buttons
               Positioned(
                 bottom: 30,
@@ -193,39 +259,61 @@ class _MapViewState extends State<MapView> {
       trackCameraPosition: true,
       onStyleLoadedCallback: () async {
         if (_mapController == null) return;
-        
-        // Tạo source và layer cho route
+
         final Map<String, dynamic> emptyGeoJson = {
           'type': 'FeatureCollection',
-          'features': []
+          'features': [],
         };
 
+        // 1️⃣ Source + Layer cho đường chạy thực tế (màu hồng)
         await _mapController?.addSource(
           "route-source",
           GeojsonSourceProperties(data: emptyGeoJson),
         );
-        
+
         await _mapController?.addLayer(
           "route-layer",
           "route-source",
           const LineLayerProperties(
             lineColor: "#FF4081",
             lineWidth: 5.0,
-            lineOpacity: 0.8,
+            lineOpacity: 0.9,
           ),
         );
-        
-        setState(() {
-          _isStyleLoaded = true;
-        });
-        
-        // Cập nhật route nếu đã có
-        final currentState = context.read<RunBloc>().state;
-        if (currentState is RunInProgress && currentState.route.isNotEmpty) {
-          final routeLatLng = currentState.route
+
+        // 2️⃣ Source + Layer cho đường AI (màu xanh)
+        await _mapController?.addSource(
+          "ai-route-source",
+          GeojsonSourceProperties(data: emptyGeoJson),
+        );
+
+        await _mapController?.addLayer(
+          "ai-route-layer",
+          "ai-route-source",
+          const LineLayerProperties(
+            lineColor: "#00AAFF",
+            lineWidth: 4.0,
+            lineOpacity: 0.6,
+          ),
+        );
+
+        // Đánh dấu style đã load
+        setState(() => _isStyleLoaded = true);
+
+        // Lấy state hiện tại từ Bloc
+        final state = context.read<RunBloc>().state;
+
+        // Nếu đang chạy → vẽ lại route thật
+        if (state is RunInProgress && state.route.isNotEmpty) {
+          final routeLatLng = state.route
               .map((p) => LatLng(p.latitude, p.longitude))
               .toList();
           _updateRoute(routeLatLng);
+        }
+
+        // Nếu có đường AI được gợi ý → vẽ đường AI
+        if (state is RunInitial && state.suggestedRoute != null) {
+          _updateAiRoute(state.suggestedRoute!.routePoints);
         }
       },
     );
@@ -248,7 +336,7 @@ class _MapActionButtons extends StatelessWidget {
       children: [
         // Nút Quay về
         RunCircularButton(
-        onPressed: () => context.pop(),
+          onPressed: () => context.pop(),
           icon: Icons.arrow_back,
           size: 70,
           iconSize: 24,
