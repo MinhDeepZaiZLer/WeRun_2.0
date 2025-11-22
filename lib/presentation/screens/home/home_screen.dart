@@ -142,7 +142,7 @@ class HomeScreenContent extends StatelessWidget {
 
                         context.read<HomeBloc>().add(StartRun());
 
-                       context.go('/run');
+                       context.push('/run');
 
                       },
                       onSettingsClick: () {

@@ -36,13 +36,14 @@ class RunView extends StatelessWidget {
           }
           
           // Tự động thoát khi lưu/hủy xong
-          if ((state is RunInitial && state.suggestedRoute == null)|| state is RunFinished) {
+          if (state is RunFinished || 
+             (state is RunInitial && state.suggestedRoute == null && !state.isLoadingAi)) { // <-- THÊM !state.isLoadingAi
+            
             if (ModalRoute.of(context)?.isCurrent ?? false) {
-              // Kiểm tra xem có thể pop không, nếu không thì dùng go
               if (Navigator.of(context).canPop()) {
                 context.pop();
               } else {
-                context.go('/home'); // Hoặc route home của bạn
+                context.go('/home');
               }
             }
           }

@@ -10,9 +10,10 @@ abstract class RunState {
 
 // 1. Trạng thái ban đầu (Đã thêm suggestedRoute)
 class RunInitial extends RunState {
+  @override
   final SuggestedRoute? suggestedRoute; 
-
-  const RunInitial({this.suggestedRoute});
+  final bool isLoadingAi; 
+  const RunInitial({this.suggestedRoute, this.isLoadingAi = false});
 }
 
 // 2. Trạng thái đang chạy (Đã thêm suggestedRoute)
@@ -22,6 +23,7 @@ class RunInProgress extends RunState {
   final double currentSpeedKmh; 
   final List<LocationPoint> route; 
   final bool isPaused;
+  @override
   final SuggestedRoute? suggestedRoute; // <-- Quan trọng: Giữ đường AI khi đang chạy
 
   const RunInProgress({

@@ -9,32 +9,49 @@ class GpsService {
   Stream<LocationData>? _locationStream;
 
   // 1. Hàm để xin quyền và bật service
-  Future<bool> _initialize() async {
+ Future<bool> _initialize() async {
     bool serviceEnabled;
     PermissionStatus permissionGranted;
 
-    // Kiểm tra xem service vị trí có bật không
     serviceEnabled = await _location.serviceEnabled();
     if (!serviceEnabled) {
       serviceEnabled = await _location.requestService();
-      if (!serviceEnabled) {
-        return false; // Người dùng không bật service
-      }
+      if (!serviceEnabled) return false;
     }
 
-    // Kiểm tra quyền (permission)
     permissionGranted = await _location.hasPermission();
     if (permissionGranted == PermissionStatus.denied) {
       permissionGranted = await _location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        return false; // Người dùng không cấp quyền
-      }
+      if (permissionGranted != PermissionStatus.granted) return false;
     }
-    
-    // (Tùy chọn) Bật chế độ chạy ngầm (nếu bạn đã cấu hình)
-    // await _location.enableBackgroundMode(enable: true);
+    return true;
+  }
 
-    return true; // Sẵn sàng
+  // === SỬA HÀM NÀY ===
+  Future<LocationData?> getCurrentLocation() async {
+    print("📡 [GpsService] Bắt đầu lấy vị trí...");
+    try {
+      final hasPermission = await _initialize();
+      if (!hasPermission) {
+        print("❌ [GpsService] Không có quyền GPS");
+        return null;
+      }
+
+      print("📡 [GpsService] Đang đợi bản tin GPS đầu tiên...");
+      final locationData = await _location.onLocationChanged.first.timeout(
+        const Duration(seconds: 10), // Tăng lên 10s cho chắc
+        onTimeout: () {
+           throw Exception("Timeout: GPS không phản hồi sau 10s");
+        },
+      );
+      
+      print("✅ [GpsService] Đã lấy được: ${locationData.latitude}, ${locationData.longitude}");
+      return locationData;
+
+    } catch (e) {
+      print("⚠️ [GpsService] Lỗi: $e");
+      return null; // Trả về null để BLoC dùng fallback
+    }
   }
 
   // 2. Hàm để bắt đầu theo dõi GPS (trả về 1 Stream)
@@ -42,15 +59,6 @@ class GpsService {
     // Chỉ khởi tạo stream nếu nó chưa tồn tại
     _locationStream ??= _location.onLocationChanged;
     return _locationStream!;
-  }
-
-  // 3. Hàm (gọi 1 lần) để lấy vị trí hiện tại
-  Future<LocationData?> getCurrentLocation() async {
-    final hasPermission = await _initialize();
-    if (!hasPermission) {
-      return null;
-    }
-    return await _location.getLocation();
   }
 
   // 4. (Sau này dùng) Hàm để dừng theo dõi (ví dụ: khi app bị đóng)

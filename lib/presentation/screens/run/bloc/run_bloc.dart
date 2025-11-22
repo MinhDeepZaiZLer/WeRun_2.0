@@ -48,25 +48,44 @@ class RunBloc extends Bloc<RunEvent, RunState> {
   }
 
   // --- CẬP NHẬT HÀM NÀY ---
-  Future<void> _onSuggestRouteRequested(
+ Future<void> _onSuggestRouteRequested(
       SuggestRouteRequested event, Emitter<RunState> emit) async {
+    
+    emit(RunInitial(isLoadingAi: true, suggestedRoute: state.suggestedRoute)); 
+
     try {
-      final locationData = await _gpsService.getCurrentLocation();
-      if (locationData?.latitude == null || locationData?.longitude == null) {
-        emit(const RunFailure("Không thể lấy vị trí GPS. Hãy thử lại."));
-        return;
+      print("📍 [BLoC] Đang gọi GPS..."); 
+      
+      // Gọi hàm GPS (đã có timeout 5s)
+      LocationData? locationData = await _gpsService.getCurrentLocation();
+      
+      // === THÊM LOGIC DỰ PHÒNG (FALLBACK) ===
+      if (locationData?.latitude == null) {
+         print("⚠️ [BLoC] Không lấy được GPS thật -> Dùng tọa độ giả lập (Đà Nẵng) để test.");
+         // Tự tạo một LocationData giả (Khu vực FPT Đà Nẵng)
+         locationData = LocationData.fromMap({
+            'latitude': 16.0610, 
+           'longitude': 108.2209,
+         });
       }
+      // =======================================
+
+      print("✅ [BLoC] Chốt tọa độ: ${locationData!.latitude}, ${locationData.longitude}");
+      print("🌐 [BLoC] Đang gọi API...");
 
       final SuggestedRoute suggestedRoute = await _getSuggestedRouteUsecase.call(
-        lat: locationData!.latitude!,
+        lat: locationData.latitude!,
         lng: locationData.longitude!,
         distanceKm: event.distanceKm,
       );
       
-      // Emit state mới có chứa đường chạy
-      emit(RunInitial(suggestedRoute: suggestedRoute)); 
+      print("✅ [BLoC] API Xong! Có ${suggestedRoute.routePoints.length} điểm");
+
+      emit(RunInitial(isLoadingAi: false, suggestedRoute: suggestedRoute)); 
       
     } catch (e) {
+      print("❌ [BLoC] Lỗi Exception: $e");
+      emit(RunInitial(isLoadingAi: false, suggestedRoute: state.suggestedRoute)); 
       emit(RunFailure(e.toString()));
     }
   }
