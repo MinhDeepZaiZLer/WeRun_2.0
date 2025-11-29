@@ -23,7 +23,7 @@ class AuthRepositoryImpl implements AuthRepository {
       return User(
         id: firebaseUser.uid,
         email: firebaseUser.email ?? '', // Email không bao giờ null khi đã login
-        name: firebaseUser.displayName ?? '', // Lấy tên ta đã set lúc đăng ký
+        fullName: firebaseUser.displayName ?? '', // Lấy tên ta đã set lúc đăng ký
         
         // Các trường còn lại (address, gender...) sẽ là null/default.
         // Chúng ta sẽ cập nhật chúng từ Firestore ở các ngày sau

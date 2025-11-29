@@ -1,3 +1,6 @@
+import 'package:dacs4_werun_2_0/presentation/screens/friends/community_screen.dart';
+import 'package:dacs4_werun_2_0/presentation/screens/friends/friends_screen.dart';
+import 'package:dacs4_werun_2_0/presentation/screens/profile/profile_screen.dart';
 import 'package:dacs4_werun_2_0/presentation/screens/run/bloc/run_bloc.dart';
 import 'package:dacs4_werun_2_0/presentation/screens/run/map_screen.dart';
 import 'package:dacs4_werun_2_0/presentation/screens/run/run_screen.dart';
@@ -8,8 +11,8 @@ import 'package:go_router/go_router.dart';
 import '../../core/di/injection.dart';
 import '../screens/auth/bloc/auth_bloc.dart';
 import '../screens/auth/login_screen.dart';
-import '../screens/auth/sign_up_screen.dart'; 
-import '../screens/placeholder_screen.dart'; 
+import '../screens/auth/sign_up_screen.dart';
+import '../screens/placeholder_screen.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/history/history_screen.dart';
 
@@ -74,6 +77,18 @@ class AppRouter {
       GoRoute(
         path: '/run_history',
         builder: (context, state) => const HistoryScreen(),
+      ),
+      GoRoute(
+        path: '/profile',
+        builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: '/community',
+        builder: (context, state) => const CommunityScreen(),
+      ),
+      GoRoute(
+        path: '/friends',
+        builder: (context, state) => const FriendsScreen(),
       ),
       // GoRoute(
       //   path: '/run',

@@ -12,7 +12,7 @@ class NavigationDrawerContent extends StatelessWidget {
     String userEmail = "user@example.com";
 
     if (AuthState is Authenticated) {
-      userName = AuthState.user.name;
+      userName = AuthState.user.fullName;
       userEmail = AuthState.user.email;
     }
     return Drawer(
@@ -51,7 +51,7 @@ class NavigationDrawerContent extends StatelessWidget {
             title: const Text("Profile"),
             onTap: () {
               Navigator.pop(context);
-              //context.go("/profile")
+              context.push("/profile");
             },
           ),
           ListTile(
@@ -63,11 +63,19 @@ class NavigationDrawerContent extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.social_distance),
+            title: const Text("Community"),
+            onTap: () {
+              Navigator.pop(context);
+              context.push("/community");
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.group_outlined),
             title: const Text("Friends"),
             onTap: () {
               Navigator.pop(context);
-              // context.go("/friend");
+              context.go("/friends");
             },
           ),
           ListTile(
