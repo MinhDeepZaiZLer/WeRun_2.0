@@ -78,11 +78,9 @@ class FriendsScreen extends StatelessWidget {
                     subtitle: Text(friend.email),
                     trailing: const Icon(Icons.chat_bubble_outline, color: Colors.blue),
                     onTap: () {
-                      // CHUẨN BỊ CHO NGÀY 33 (CHAT)
-                      // context.push('/chat/${friend.id}');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Chat with ${friend.fullName} coming soon!"))
-                      );
+                     
+                      context.push('/chat', extra: friend);
+                     
                     },
                   ),
                 );

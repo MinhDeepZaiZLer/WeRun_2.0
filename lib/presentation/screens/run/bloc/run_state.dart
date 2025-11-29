@@ -10,22 +10,27 @@ abstract class RunState {
 
 // 1. Trạng thái ban đầu (Đã thêm suggestedRoute)
 class RunInitial extends RunState {
+  final String temperature;
   @override
-  final SuggestedRoute? suggestedRoute; 
-  final bool isLoadingAi; 
-  const RunInitial({this.suggestedRoute, this.isLoadingAi = false});
+  final SuggestedRoute? suggestedRoute;
+  final bool isLoadingAi;
+  const RunInitial({
+    this.suggestedRoute,
+    this.isLoadingAi = false,
+    this.temperature = "--°C",
+  });
 }
 
 // 2. Trạng thái đang chạy (Đã thêm suggestedRoute)
 class RunInProgress extends RunState {
-  final int elapsedSeconds; 
-  final double distanceMeters; 
-  final double currentSpeedKmh; 
-  final List<LocationPoint> route; 
+  final int elapsedSeconds;
+  final double distanceMeters;
+  final double currentSpeedKmh;
+  final List<LocationPoint> route;
   final bool isPaused;
   @override
   final SuggestedRoute? suggestedRoute; // <-- Quan trọng: Giữ đường AI khi đang chạy
-
+  final String temperature;
   const RunInProgress({
     this.elapsedSeconds = 0,
     this.distanceMeters = 0,
@@ -33,6 +38,7 @@ class RunInProgress extends RunState {
     this.route = const [],
     this.isPaused = false,
     this.suggestedRoute,
+    this.temperature = "--°C",
   });
 
   RunInProgress copyWith({
@@ -42,6 +48,7 @@ class RunInProgress extends RunState {
     List<LocationPoint>? route,
     bool? isPaused,
     SuggestedRoute? suggestedRoute,
+    String? temperature,
   }) {
     return RunInProgress(
       elapsedSeconds: elapsedSeconds ?? this.elapsedSeconds,
@@ -50,13 +57,14 @@ class RunInProgress extends RunState {
       route: route ?? this.route,
       isPaused: isPaused ?? this.isPaused,
       suggestedRoute: suggestedRoute ?? this.suggestedRoute,
+      temperature: temperature ?? this.temperature,
     );
   }
 }
 
 // 3. Trạng thái đã hoàn thành
 class RunFinished extends RunState {
-  final RunActivity activity; 
+  final RunActivity activity;
   const RunFinished(this.activity);
 }
 

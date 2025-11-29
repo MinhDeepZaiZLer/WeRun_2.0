@@ -1,5 +1,6 @@
 // lib/presentation/screens/run/bloc/run_bloc.dart
 import 'dart:async';
+import 'package:dacs4_werun_2_0/domain/repositories/weather_repository.dart';
 import 'package:flutter/foundation.dart'; 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
@@ -21,7 +22,7 @@ class RunBloc extends Bloc<RunEvent, RunState> {
   final GpsService _gpsService;
   final SaveRunUsecase _saveRunUsecase;
   final GetSuggestedRouteUsecase _getSuggestedRouteUsecase;
-
+  final WeatherRepository _weatherRepository;
   StreamSubscription<LocationData>? _gpsSubscription;
   Timer? _timer;
 
@@ -29,6 +30,7 @@ class RunBloc extends Bloc<RunEvent, RunState> {
     this._gpsService,
     this._saveRunUsecase,
     this._getSuggestedRouteUsecase,
+    this._weatherRepository,
   ) : super(const RunInitial()) { // Thêm const
     on<StartRun>(_onStartRun);
     on<PauseRun>(_onPauseRun);

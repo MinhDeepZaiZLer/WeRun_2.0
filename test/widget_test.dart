@@ -8,13 +8,13 @@ import 'package:dacs4_werun_2_0/main.dart';
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // ✅ Tạo AuthBloc trước
-    final authBloc = AuthBloc(); // nếu bloc của bạn cần repo, truyền repo vào đây
+// nếu bloc của bạn cần repo, truyền repo vào đây
     
     // ✅ Truyền vào AppRouter
-    final appRouter = AppRouter(authBloc);
+    final appRouter = AppRouter();
 
     // ✅ Chạy app
-    await tester.pumpWidget(MyApp(appRouter: appRouter));
+    await tester.pumpWidget(MyApp());
 
     // Các bước test mặc định
     expect(find.text('0'), findsOneWidget);

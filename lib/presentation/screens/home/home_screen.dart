@@ -1,4 +1,5 @@
 // lib/presentation/screens/home/home_screen.dart
+import 'package:dacs4_werun_2_0/core/di/injection.dart';
 import 'package:dacs4_werun_2_0/presentation/components/navigation_drawer_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,7 +14,8 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => HomeBloc()..add(LoadHomeData()),
+      // 2. Dùng getIt để lấy BLoC đã được tiêm phụ thuộc đầy đủ
+      create: (context) => getIt<HomeBloc>()..add(LoadHomeData()),
       child: const HomeScreenContent(),
     );
   }

@@ -52,15 +52,25 @@ class RunHelpers {
 
   /// Lấy dữ liệu từ state
   static RunData getRunData(RunState state) {
+    String temp = "--°C";
+
+    // Lấy nhiệt độ từ state (nếu có)
+    if (state is RunInitial) {
+      temp = state.temperature;
+    } else if (state is RunInProgress) {
+      temp = state.temperature;
+    }
+
     if (state is RunInProgress) {
       return RunData(
         elapsedSeconds: state.elapsedSeconds,
         distanceMeters: state.distanceMeters,
         isRunning: !state.isPaused,
         hasRoute: state.route.isNotEmpty,
+        temperature: temp, // Truyền nhiệt độ vào
       );
     }
-    return RunData();
+    return RunData(temperature: temp);
   }
 }
 
@@ -70,12 +80,13 @@ class RunData {
   final double distanceMeters;
   final bool isRunning;
   final bool hasRoute;
-
+  final String temperature;
   RunData({
     this.elapsedSeconds = 0,
     this.distanceMeters = 0,
     this.isRunning = false,
     this.hasRoute = false,
+    this.temperature = "--°C",
   });
 
   String get duration => RunHelpers.formatDuration(elapsedSeconds);
@@ -90,15 +101,16 @@ class RunData {
 
 /// Top Status Bar với Weather và GPS
 class RunTopStatusBar extends StatelessWidget {
-  const RunTopStatusBar({super.key});
+  final String temperature; // <-- Nhận tham số
 
+  const RunTopStatusBar({super.key, required this.temperature});
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _StatusChip(icon: Icons.wb_sunny, text: "25°C"),
-        // Progress indicator
+        _StatusChip(icon: Icons.wb_sunny, text: temperature),
+        // Progress indicatorf
         Container(
           height: 8,
           width: 60,
@@ -120,10 +132,7 @@ class RunTopStatusBar extends StatelessWidget {
                   ),
                 ),
               ),
-              Expanded(
-                flex: 6,
-                child: Container(color: RunColors.lightGreen),
-              ),
+              Expanded(flex: 6, child: Container(color: RunColors.lightGreen)),
             ],
           ),
         ),
@@ -415,11 +424,8 @@ class RunStopDialog extends StatelessWidget {
   }) {
     return showDialog(
       context: context,
-      builder: (dialogContext) => RunStopDialog(
-        data: data,
-        onDiscard: onDiscard,
-        onSave: onSave,
-      ),
+      builder: (dialogContext) =>
+          RunStopDialog(data: data, onDiscard: onDiscard, onSave: onSave),
     );
   }
 
@@ -453,10 +459,7 @@ class RunStopDialog extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: RunColors.lightGreen,
           ),
-          child: Text(
-            "Save",
-            style: TextStyle(color: RunColors.textBlack),
-          ),
+          child: Text("Save", style: TextStyle(color: RunColors.textBlack)),
         ),
       ],
     );

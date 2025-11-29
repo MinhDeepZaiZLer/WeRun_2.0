@@ -57,7 +57,7 @@ class RunView extends StatelessWidget {
               child: Column(
                 children: [
                   // Top status bar
-                  const RunTopStatusBar(),
+                  RunTopStatusBar(temperature: data.temperature),
                   const SizedBox(height: 48),
                   
                   // Distance display (lớn)

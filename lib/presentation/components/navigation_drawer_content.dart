@@ -75,7 +75,7 @@ class NavigationDrawerContent extends StatelessWidget {
             title: const Text("Friends"),
             onTap: () {
               Navigator.pop(context);
-              context.go("/friends");
+              context.push("/friends");
             },
           ),
           ListTile(

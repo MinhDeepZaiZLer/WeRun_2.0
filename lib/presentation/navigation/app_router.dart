@@ -1,3 +1,5 @@
+import 'package:dacs4_werun_2_0/domain/entities/user.dart';
+import 'package:dacs4_werun_2_0/presentation/screens/chat/chat_screen.dart';
 import 'package:dacs4_werun_2_0/presentation/screens/friends/community_screen.dart';
 import 'package:dacs4_werun_2_0/presentation/screens/friends/friends_screen.dart';
 import 'package:dacs4_werun_2_0/presentation/screens/profile/profile_screen.dart';
@@ -90,6 +92,9 @@ class AppRouter {
         path: '/friends',
         builder: (context, state) => const FriendsScreen(),
       ),
+      GoRoute(path: '/chat',
+      builder: (context, state) {final friend = state.extra as User; 
+          return ChatScreen(friend: friend);}),
       // GoRoute(
       //   path: '/run',
       //   builder: (context, state) => const RunScreen(),
