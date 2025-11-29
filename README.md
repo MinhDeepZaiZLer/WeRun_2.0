@@ -338,25 +338,6 @@ Mọi đóng góp đều được chào đón! Để contribute:
 4. Push to branch (`git push origin feature/AmazingFeature`)
 5. Mở Pull Request
 
-## 📝 Changelog
-
-Xem [CHANGELOG.md](CHANGELOG.md) để biết chi tiết về các phiên bản.
-
-## 📄 License
-
-Dự án này được phát hành dưới giấy phép MIT. Xem file [LICENSE](LICENSE) để biết thêm chi tiết.
-
-## 👥 Tác giả
-
-**MinhDeepZaiZLer**
-- GitHub: [@MinhDeepZaiZLer](https://github.com/MinhDeepZaiZLer)
-
-## 🙏 Acknowledgments
-
-- Flutter team cho framework tuyệt vời
-- Firebase cho backend services
-- MapLibre cho map integration
-- Cộng đồng Flutter Việt Nam
 
 ## 📞 Liên hệ
 
