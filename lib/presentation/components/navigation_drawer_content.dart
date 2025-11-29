@@ -83,7 +83,7 @@ class NavigationDrawerContent extends StatelessWidget {
             title: const Text('Statistics'),
             onTap: () {
               Navigator.pop(context);
-              // context.go('/statistics'); // Sẽ mở ở ngày sau
+              context.push('/statistics'); 
             },
           ),
           ListTile(

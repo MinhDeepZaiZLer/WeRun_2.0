@@ -1,5 +1,6 @@
 // lib/presentation/screens/run/bloc/run_bloc.dart
 import 'dart:async';
+import 'package:dacs4_werun_2_0/data/services/firebase_auth_service.dart';
 import 'package:dacs4_werun_2_0/domain/repositories/weather_repository.dart';
 import 'package:flutter/foundation.dart'; 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,12 +26,13 @@ class RunBloc extends Bloc<RunEvent, RunState> {
   final WeatherRepository _weatherRepository;
   StreamSubscription<LocationData>? _gpsSubscription;
   Timer? _timer;
-
+  final FirebaseAuthService _authService;
   RunBloc(
     this._gpsService,
     this._saveRunUsecase,
     this._getSuggestedRouteUsecase,
     this._weatherRepository,
+    this._authService,
   ) : super(const RunInitial()) { // Thêm const
     on<StartRun>(_onStartRun);
     on<PauseRun>(_onPauseRun);
@@ -189,7 +191,7 @@ class RunBloc extends Bloc<RunEvent, RunState> {
       _timer?.cancel();
       _gpsSubscription?.cancel();
       
-      const userId = 'user_123'; 
+      final userId = _authService.currentUserId ?? 'anonymous';
 
       final double avgSpeedKmh = (currentState.distanceMeters / 1000) / 
                                 (currentState.elapsedSeconds / 3600);

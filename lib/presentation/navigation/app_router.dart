@@ -6,6 +6,7 @@ import 'package:dacs4_werun_2_0/presentation/screens/profile/profile_screen.dart
 import 'package:dacs4_werun_2_0/presentation/screens/run/bloc/run_bloc.dart';
 import 'package:dacs4_werun_2_0/presentation/screens/run/map_screen.dart';
 import 'package:dacs4_werun_2_0/presentation/screens/run/run_screen.dart';
+import 'package:dacs4_werun_2_0/presentation/screens/statistics/statistics_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -92,18 +93,15 @@ class AppRouter {
         path: '/friends',
         builder: (context, state) => const FriendsScreen(),
       ),
-      GoRoute(path: '/chat',
-      builder: (context, state) {final friend = state.extra as User; 
-          return ChatScreen(friend: friend);}),
-      // GoRoute(
-      //   path: '/run',
-      //   builder: (context, state) => const RunScreen(),
-      // ),
-      // GoRoute(
-      //   path: '/map',
-      //   builder: (context, state) => const MapScreen(),
-      // ),
-      // TODO: Thêm các route '/profile', '/run_history', v.v.
+      GoRoute(
+        path: '/chat',
+        builder: (context, state) {
+          final friend = state.extra as User;
+          return ChatScreen(friend: friend);
+        },
+      ),
+      GoRoute(path: '/statistics',
+      builder: (context, state) => const StatisticsScreen(),)
     ],
   );
 }
