@@ -90,7 +90,7 @@ class AppRouter {
         builder: (context, state) => const CommunityScreen(),
       ),
       GoRoute(
-        path: '/friends',
+        path: '/community',
         builder: (context, state) => const FriendsScreen(),
       ),
       GoRoute(
